@@ -7,12 +7,12 @@ Guidance for Claude Code (claude.ai/code) when working in this repository.
 Reproduce the visual aesthetic of Douglas Arnold & Jonathan Rogness's
 **"Möbius Transformations Revealed"** in Julia + POV-Ray + FFmpeg.
 
-The reference material is at the repo root:
+The reference material is in `resources/`:
 - `mobius.pdf` — Siliciano's paper *Constructing Möbius Transformations with
   Spheres* (Rose-Hulman, 2012), which formalises the geometric construction
 - `arnold.png`, `arnold1.png`, `arnold2.png` — stills from the film
 
-The package, `MobiusSphereVisual.jl`, renders animations of Möbius sphere
+The package, `MobiusSpherePlots.jl`, renders animations of Möbius sphere
 transformations. The generic entry point is `render_scene(v, theta, t; ...)`;
 `render_mobius_animation(v, theta, t; ...)` is a thin Arnold-look preset over it.
 Either generates a POV-Ray scene from `assets/mobius_template.pov`, renders
@@ -42,18 +42,16 @@ deforms accordingly — that is the animation.
 
 ## What must remain true
 
-**Updated 2026-08-28 — the render now uses the texture-projection approach from
-the `mobius/` folder, with NO photons.** The coloured floor square is a POV-Ray
-*texture*: the stereographic pattern (`SU`/`SV` in `assets/math.inc`, `PatchVal`/
-`WireMask` in `assets/setup.inc`) painted on the projection shell's lower cap —
-not a photon caustic. So:
+The render uses a **texture-projection** approach: the coloured floor square is a
+POV-Ray *texture* — the stereographic pattern (`SU`/`SV` in `assets/math.inc`,
+`PatchVal`/`WireMask` in `assets/setup.inc`) painted on the projection shell's lower
+cap, not a photon caustic. So:
 
 - **No photons, no radiosity.** `assets/mobius_template.pov` has a plain
   `global_settings { assumed_gamma 1.0 }`. Every quality preset renders fast in
-  seconds/frame; the old "photons only at `:film`" rule no longer applies.
-- Painting the coloured projection onto the scene is **correct now** — the
-  earlier rule ("the floor colour must be the photon caustic; never paint it")
-  is retired.
+  seconds/frame.
+- Painting the coloured projection onto the scene is correct — it is a texture,
+  not a caustic to be captured.
 - **(2026-08-30)** The projector light and glow-dot sit at **`SphCentre + <0,1,0>`**
   (`PoleNow` in `mobius_template.pov`) — straight above the sphere centre in
   world-up. They follow the phase-2 **translation** but **not** the phase-1
@@ -83,7 +81,7 @@ default. The scene is configurable through two mechanisms, both keyed to the POV
 - **`set_scene!(; A=2.0, C_Floor=(0.5,0.5,0.5), CamAngle=55, ShowAxes=false, …)`** —
   process-global overrides (persist until `reset_scene!()`; read back with
   `scene_settings()`). Keys mirror the POV names and must be in
-  `MobiusSphereVisual.SCENE_KEYS`. Values: scalars, 3-tuples (colour keys in
+  `MobiusSpherePlots.SCENE_KEYS`. Values: scalars, 3-tuples (colour keys in
   `SCENE_COLOR_KEYS` emit `rgb <…>`, others a bare vector `<…>`), booleans, or a raw
   POV string (emitted verbatim).
 - **`render_scene(v, θ, t; scene=(;), floor/axes/glass/shell/glow, extra_sdl, <render
@@ -154,7 +152,7 @@ Trial-and-error on visuals is the normal mode of work here.
   `MobiusSphere.Mobius_to_rigid_sitting`, **not** the centred `Mobius_to_rigid`
   (whose invariant circle sits at radius 2 and deforms the drawn unit circle).
   The accident→render bridge lives in the `MobiusSphereAccidentals` package
-  (`~/.julia/dev/MobiusSphereAccidentals`, `Render.jl :: accident_to_rigid`), which
+  (`~/.julia/dev/MobiusSphereAccidentals`, `Render.jl :: _motion`), which
   uses the sitting variant. (It supersedes the retired loose script
   `~/.julia/environments/MobiusSuite/accidental_mobius.jl`, removed 2026-09-01.)
 - **Stereographic radius** from a unit sphere point `(x, y, z)` to the floor
@@ -172,17 +170,17 @@ Julia is at `~/src/juliaup/bin/julia`. Run from package root with `--project=.`.
 # Test suite
 ~/src/juliaup/bin/julia --project=. test/runtests.jl
 
-# Quick visual iteration (no caustic — use for sphere/colour tweaks only)
+# Quick visual iteration
 ~/src/juliaup/bin/julia --project=. -e "
-  using MobiusSphereVisual
+  using MobiusSpherePlots
   render_mobius_animation([0.,0.,1.], pi/4, [0.,0.,0.];
                           output=\"/tmp/test.mp4\", nframes=4,
                           resolution=(640,360), quality=:medium,
                           keep_temp=true)
 "
 
-# Full Arnold-style render (with photon caustic — slower)
-# Use :film and bump nframes/resolution when you have a confirmed look.
+# Final render: bump nframes/resolution once the look is confirmed.
+# All presets are fast (no photons); higher presets only add antialiasing.
 ```
 
 ## External dependencies
@@ -191,11 +189,11 @@ Julia is at `~/src/juliaup/bin/julia`. Run from package root with `--project=.`.
 
 ## Code architecture (read-only summary)
 
-The source lives in two files in `src/`:
+The source lives in four files in `src/`:
 
 | File | Responsibility |
 |------|---------------|
-| `MobiusSphereVisual.jl` | Module entry + core loop `_render_animation`; exports `render_scene`, `render_mobius_animation` (preset), `set_scene!`, `reset_scene!`, `scene_settings`, `concat_clips` |
+| `MobiusSpherePlots.jl` | Module entry + core loop `_render_animation`; exports `render_scene`, `render_mobius_animation` (preset), `set_scene!`, `reset_scene!`, `scene_settings`, `concat_clips` |
 | `Scene.jl` | Generic scene layer: global config, `set_scene!`/`render_scene`, POV-literal formatting, `@SCENE_OVERRIDES@` block |
 | `Emit.jl` | POV scene generation: template substitution (incl. `@SCENE_OVERRIDES@`/`@EXTRA_SDL@`), asset copying, quality presets |
 | `Render.jl` | Input validation, `povray` invocation, FFmpeg encoding, `concat_clips` (join rendered clips into one video), photon/radiosity blocks |
@@ -215,6 +213,7 @@ All `.inc` files are copied to the temp render directory by
 
 ## Quality presets
 
-`:draft`, `:medium`, `:high`, `:ultra`, `:film` — these now differ only in
-antialiasing; **none use photons** (the scene has none), so all render fast.
+`:draft`, `:medium`, `:high`, `:ultra`, `:film`. `:draft`/`:medium` are
+photon- and radiosity-free; `:high`/`:ultra` enable radiosity; `:film` adds
+photons. Presets also differ in ffmpeg encoding (crf/bitrate).
 Sampling fields are overridable via the `sampling` keyword (`NamedTuple` or `Dict`).

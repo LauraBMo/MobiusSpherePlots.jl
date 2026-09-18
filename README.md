@@ -1,11 +1,11 @@
-# MobiusSphereVisual [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://LauraBMo.github.io/MobiusSphereVisual/stable/) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://LauraBMo.github.io/MobiusSphereVisual/dev/) [![Build Status](https://github.com/LauraBMo/MobiusSphereVisual.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/LauraBMo/MobiusSphereVisual.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/LauraBMo/MobiusSphereVisual.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/LauraBMo/MobiusSphereVisual.jl)
+# MobiusSpherePlots [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://LauraBMo.github.io/MobiusSpherePlots/stable/) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://LauraBMo.github.io/MobiusSpherePlots/dev/) [![Build Status](https://github.com/LauraBMo/MobiusSpherePlots.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/LauraBMo/MobiusSpherePlots.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/LauraBMo/MobiusSpherePlots.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/LauraBMo/MobiusSpherePlots.jl)
 
 Render Möbius transformations in the style of *Möbius Transformations Revealed* directly from Julia.
 
 ## Quick start
 
 ```julia
-using MobiusSphereVisual
+using MobiusSpherePlots
 
 v = [0.0, 0.0, 1.0]
 theta = π / 2
@@ -24,7 +24,7 @@ See `Laura.org` for additional runnable examples and demo workflows.
 
 ```julia
 using MobiusSphere
-using MobiusSphereVisual
+using MobiusSpherePlots
 
 mobius = MobiusSphere.example_loxodromic()  # replace with your own construction
 coeffs = MobiusSphere.motion_parameters(mobius)  # returns (v, theta, t)
@@ -67,7 +67,7 @@ lower detail.
 When you need the raw pieces, unpack the tuple manually and pass the components to `render_mobius_animation`:
 
 ```julia
-using MobiusSphereVisual
+using MobiusSpherePlots
 
 params = ([0.0, 0.0, 1.0], pi / 2, [0.2, 0.0, 0.0])
 
@@ -115,5 +115,5 @@ Any field you omit inherits its value from the chosen quality preset, so you can
 The `:ultra` and `:film` presets set both `radiosity` and `photons` to `true`, enabling soft indirect light and photon caustics without
 requiring a user configuration file.
 
-See the [documentation](https://LauraBMo.github.io/MobiusSphereVisual/dev/)
+See the [documentation](https://LauraBMo.github.io/MobiusSpherePlots/dev/)
 for API details and extended examples.

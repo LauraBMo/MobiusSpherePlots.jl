@@ -4,7 +4,7 @@
 //
 //  Every scalar/colour/vector below is #ifndef-guarded, so each one is a
 //  SETTABLE GLOBAL: #declare it before this file is included and the value
-//  here yields to yours. MobiusSphereVisual's Scene.jl emits that override
+//  here yields to yours. MobiusSpherePlots's Scene.jl emits that override
 //  block from `set_scene!` / `render_scene` (keys mirror these POV names).
 //  Anything left unset keeps the Arnold default.
 // ============================================================

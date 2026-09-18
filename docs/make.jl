@@ -1,14 +1,14 @@
-using MobiusSphereVisual
+using MobiusSpherePlots
 using Documenter
 
-DocMeta.setdocmeta!(MobiusSphereVisual, :DocTestSetup, :(using MobiusSphereVisual); recursive=true)
+DocMeta.setdocmeta!(MobiusSpherePlots, :DocTestSetup, :(using MobiusSpherePlots); recursive=true)
 
 makedocs(
-    modules = [MobiusSphereVisual],
+    modules = [MobiusSpherePlots],
     authors = "LauBMo <laurea987@gmail.com> and contributors",
-    sitename = "MobiusSphereVisual",
+    sitename = "MobiusSpherePlots",
     format = Documenter.HTML(
-        canonical = "https://LauraBMo.github.io/MobiusSphereVisual",
+        canonical = "https://LauraBMo.github.io/MobiusSpherePlots",
         edit_link = "main",
         assets = String[],
     ),
@@ -22,6 +22,6 @@ makedocs(
 )
 
 deploydocs(
-    repo = "github.com/LauraBMo/MobiusSphereVisual.jl",
+    repo = "github.com/LauraBMo/MobiusSpherePlots.jl",
     devbranch = "main",
 )
