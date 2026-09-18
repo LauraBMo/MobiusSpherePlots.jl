@@ -1,4 +1,4 @@
-module MobiusSphereVisual
+module MobiusSpherePlots
 
 using Printf
 using LinearAlgebra

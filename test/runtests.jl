@@ -1,5 +1,5 @@
 #!/usr/bin/env julia
-# test_refactor.jl — exercises PR-1 (MobiusSphere) and PR-2 (MobiusSphereVisual)
+# test_refactor.jl — exercises PR-1 (MobiusSphere) and PR-2 (MobiusSpherePlots)
 #
 # SETUP — run once to point Julia at the branch:
 #
@@ -7,7 +7,7 @@
 #     using Pkg
 #     Pkg.add(url="https://github.com/LauraBMo/MobiusSphere",
 #             rev="claude/update-mobius-refactor-plan-vzDH1")
-#     Pkg.add(url="https://github.com/LauraBMo/MobiusSphereVisual",
+#     Pkg.add(url="https://github.com/LauraBMo/MobiusSpherePlots",
 #             rev="claude/update-mobius-refactor-plan-vzDH1")
 #   '
 #
@@ -16,15 +16,15 @@
 # Then:
 #   julia --project=@. test_refactor.jl
 
-using MobiusSphereVisual
+using MobiusSpherePlots
 using LinearAlgebra
 using Test
 
-@testset "MobiusSphereVisual.jl" begin
+@testset "MobiusSpherePlots.jl" begin
     sample_mp4 = joinpath(tempdir(), "video.mp4")
     sample_gif = joinpath(tempdir(), "gif_output.gif")
-    @test MobiusSphereVisual.derived_temp_destination(sample_mp4) == joinpath(dirname(sample_mp4), "video_frames")
-    @test MobiusSphereVisual.derived_temp_destination(sample_gif) == joinpath(dirname(sample_gif), "gif_output_frames")
+    @test MobiusSpherePlots.derived_temp_destination(sample_mp4) == joinpath(dirname(sample_mp4), "video_frames")
+    @test MobiusSpherePlots.derived_temp_destination(sample_gif) == joinpath(dirname(sample_gif), "gif_output_frames")
 end
 
 # ── PR-1: MobiusSphere ────────────────────────────────────────────────────────
@@ -126,46 +126,46 @@ end
 
 # (The Nemo/CalciumField extension was dropped 2026-09-03 — the whole suite is Nemo-free.)
 
-# ── PR-2: MobiusSphereVisual ──────────────────────────────────────────────────
+# ── PR-2: MobiusSpherePlots ──────────────────────────────────────────────────
 println("\n═══════════════════════════════════════")
-println("  PR-2  MobiusSphereVisual")
+println("  PR-2  MobiusSpherePlots")
 println("═══════════════════════════════════════")
 
-using MobiusSphereVisual
+using MobiusSpherePlots
 
 @testset "Input validation" begin
     # Non-unit axis → normalised with a warning
-    v_out = @test_logs (:warn, r"Normalising") MobiusSphereVisual.validate_inputs(
+    v_out = @test_logs (:warn, r"Normalising") MobiusSpherePlots.validate_inputs(
         [0.0, 0.0, 2.0], π/4, [0.0, 0.0, 0.0])
     @test norm(v_out) ≈ 1.0  atol=1e-12
 
     # Zero axis → error
-    @test_throws ArgumentError MobiusSphereVisual.validate_inputs(
+    @test_throws ArgumentError MobiusSpherePlots.validate_inputs(
         [0.0, 0.0, 0.0], π/4, [0.0, 0.0, 0.0])
 
     # Non-finite theta → error
-    @test_throws ArgumentError MobiusSphereVisual.validate_inputs(
+    @test_throws ArgumentError MobiusSpherePlots.validate_inputs(
         [0.0, 0.0, 1.0], Inf, [0.0, 0.0, 0.0])
 
     # Bad resolution → error
-    @test_throws ArgumentError MobiusSphereVisual._validate_resolution((0, 720))
+    @test_throws ArgumentError MobiusSpherePlots._validate_resolution((0, 720))
     println("  ✓  validate_inputs / _validate_resolution")
 end
 
 @testset "Quality presets" begin
     for sym in (:draft, :medium, :high, :ultra, :film)
-        qs = MobiusSphereVisual.quality_settings(sym)
+        qs = MobiusSpherePlots.quality_settings(sym)
         @test haskey(qs, :pov)
         @test haskey(qs, :ffmpeg)
     end
-    @test_throws ArgumentError MobiusSphereVisual.quality_settings(:nonexistent)
+    @test_throws ArgumentError MobiusSpherePlots.quality_settings(:nonexistent)
 
     # Per plan: radiosity on :high and :film; photons on :film only
-    @test  MobiusSphereVisual.quality_settings(:high).pov.radiosity  == true
-    @test  MobiusSphereVisual.quality_settings(:film).pov.radiosity  == true
-    @test  MobiusSphereVisual.quality_settings(:film).pov.photons    == true
-    @test  MobiusSphereVisual.quality_settings(:draft).pov.radiosity == false
-    @test  MobiusSphereVisual.quality_settings(:draft).pov.photons   == false
+    @test  MobiusSpherePlots.quality_settings(:high).pov.radiosity  == true
+    @test  MobiusSpherePlots.quality_settings(:film).pov.radiosity  == true
+    @test  MobiusSpherePlots.quality_settings(:film).pov.photons    == true
+    @test  MobiusSpherePlots.quality_settings(:draft).pov.radiosity == false
+    @test  MobiusSpherePlots.quality_settings(:draft).pov.photons   == false
     println("  ✓  quality presets (radiosity/photon flags)")
 end
 
@@ -175,7 +175,7 @@ end
     v = [0.0, 0.0, 1.0]
     t = [0.0, 0.5, 0.3]  # Julia [y,z] → POV [z,y]
 
-    scene_path = MobiusSphereVisual.generate_pov_scene(
+    scene_path = MobiusSpherePlots.generate_pov_scene(
         v, π/4, t, dir)
 
     pov = read(scene_path, String)
@@ -198,7 +198,7 @@ end
 
 @testset "copy_assets copies the mobius-look .inc files" begin
     dir = mktempdir()
-    MobiusSphereVisual.copy_assets(dir)
+    MobiusSpherePlots.copy_assets(dir)
     for f in ("math.inc", "setup.inc", "textures.inc", "objects.inc")
         @test isfile(joinpath(dir, f))
     end
@@ -211,8 +211,8 @@ end
 end
 
 @testset "derived_temp_destination" begin
-    @test MobiusSphereVisual.derived_temp_destination("/tmp/foo.mp4")  == "/tmp/foo_frames"
-    @test MobiusSphereVisual.derived_temp_destination("/out/bar.gif")  == "/out/bar_frames"
+    @test MobiusSpherePlots.derived_temp_destination("/tmp/foo.mp4")  == "/tmp/foo_frames"
+    @test MobiusSpherePlots.derived_temp_destination("/out/bar.gif")  == "/out/bar_frames"
     println("  ✓  derived_temp_destination")
 end
 
@@ -234,7 +234,7 @@ end
 end
 
 @testset "Scene POV-literal formatting" begin
-    lit = MobiusSphereVisual._pov_literal
+    lit = MobiusSpherePlots._pov_literal
     @test lit(:A, 2.0)                    == "2.0"
     @test lit(:ShowAxes, false)           == "false"
     @test lit(:ShowFloor, true)           == "true"
@@ -242,16 +242,16 @@ end
     @test lit(:CamLoc, (8, 4, 5))         == "<8, 4, 5>"             # vector key → bare <>
     @test lit(:FilterAmt, "raw_pov_here") == "raw_pov_here"          # string emitted verbatim
     @test_throws ArgumentError lit(:CamLoc, (1, 2))                  # wrong arity
-    blk = MobiusSphereVisual.scene_override_block(Dict{Symbol,Any}(:A => 2.2, :ShowAxes => false))
+    blk = MobiusSpherePlots.scene_override_block(Dict{Symbol,Any}(:A => 2.2, :ShowAxes => false))
     @test occursin("#declare A = 2.2;", blk)
     @test occursin("#declare ShowAxes = false;", blk)
-    @test MobiusSphereVisual.scene_override_block(Dict{Symbol,Any}()) == ""
+    @test MobiusSpherePlots.scene_override_block(Dict{Symbol,Any}()) == ""
     println("  ✓  _pov_literal (scalar/bool/colour/vector/string) + override block")
 end
 
 @testset "toggle kwargs map to Show* globals" begin
     reset_scene!()
-    ov = MobiusSphereVisual._merge_scene_overrides((;);
+    ov = MobiusSpherePlots._merge_scene_overrides((;);
              floor=nothing, axes=false, glass=nothing, shell=nothing, glow=true)
     @test ov[:ShowAxes] == false
     @test ov[:ShowGlow] == true
@@ -263,9 +263,9 @@ end
 @testset "render_scene injects overrides + extra_sdl into the .pov" begin
     reset_scene!()
     dir = mktempdir()
-    block = MobiusSphereVisual.scene_override_block(
+    block = MobiusSpherePlots.scene_override_block(
         Dict{Symbol,Any}(:A => 2.2, :C_Floor => (0.6, 0.3, 0.3)))
-    scene_path = MobiusSphereVisual.generate_pov_scene(
+    scene_path = MobiusSpherePlots.generate_pov_scene(
         [0.0, 0.0, 1.0], π/4, [0.0, 0.0, 0.0], dir;
         scene_overrides = block,
         extra_sdl = "sphere { <1,0,0>, 0.2 }")

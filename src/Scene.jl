@@ -41,7 +41,7 @@ const _SCENE = Dict{Symbol,Any}()
     set_scene!(; kwargs...)
 
 Set global scene overrides. Keys mirror the POV-Ray `#declare` names in
-`assets/setup.inc` (see [`SCENE_KEYS`](@ref MobiusSphereVisual.SCENE_KEYS)):
+`assets/setup.inc` (see [`SCENE_KEYS`](@ref MobiusSpherePlots.SCENE_KEYS)):
 scalars (`A=2.0`, `CamAngle=55`, `FilterAmt=0.9`), colours/vectors as 3-tuples
 (`C_Floor=(0.44,0.44,0.45)`, `CamLoc=(8,4,5)`), booleans (`ShowAxes=false`), or a
 raw POV string (emitted verbatim). Persists across renders until [`reset_scene!`](@ref).

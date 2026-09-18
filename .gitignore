@@ -20,7 +20,7 @@ docs/build/
 /mobius/
 /scene_build.sh
 /scene*.pov
-/src/MobiusSphereVisual1.jl
+/src/MobiusSpherePlots1.jl
 
 # Tooling / editors / OS
 /.claude/
